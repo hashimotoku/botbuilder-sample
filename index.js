@@ -22,10 +22,40 @@ server.post('/api/messages', connector.listen());
 
 var bot = new builder.UniversalBot(connector);
 bot.dialog('/', function (session) {
-    let request = session.message.text;
-    let response = request;
-    if(request == 'ping'){
-        response = 'pong';
-    }
+    const request = session.message.text;
+    const response = handleRequest(request);
     session.send(response);
 });
+
+function handleRequest(request){
+    if(request.startsWith('password')){
+        return handlePassword(request);
+    }
+    else if(request.startsWith('ping')){
+        return 'pong';
+    }
+    else {
+        return request;
+    }
+}
+
+const DEFAULT_LENGTH = 12;
+
+function handlePassword(request){
+    let words = request.split(' ');
+    let length = DEFAULT_LENGTH;
+    if(words.length == 2){
+        length = Number(words[1]);
+    }
+    return makePassword(length);
+}
+
+const ALPHA_NUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+function makePassword(length) {
+    let text = "";
+    for (let i = 0; i < length ; i++){
+        text += ALPHA_NUM.charAt(Math.floor(Math.random() * ALPHA_NUM.length));
+    }
+    return text;
+}
